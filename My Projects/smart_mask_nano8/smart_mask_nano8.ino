@@ -1,0 +1,2229 @@
+#include <LedControl.h>
+#define MIC A0
+int DIN = 7;
+int CS =  6;
+int CLK = 5;
+int sig = 0;
+const int button  = 3;
+int j = 0, val = 0, val0 = 0, val1 = 0, val2 = 0, val3 = 0;
+byte invader1a[] = {B00011000, B00011000, B00011000, B00011000, B00011000, B00011000, B00011000, B00011000,};
+byte invader1b[] = {B00011000, B00011000, B00011000, B00011000, B00011000, B00011000, B00011000, B00011000,};
+byte invader2a[] = {B00011000, B00011000, B00011000, B00100100, B00100100, B00100100, B00100100, B00100100,};
+byte invader2b[] = {B00100100, B00100100, B00100100, B00100100, B00100100, B00011000, B00011000, B00011000,};
+byte invader3a[] = {B00011000, B00011000, B00100100, B01000010, B01000010, B01000010, B01000010, B01000010,};
+byte invader3b[] = {B01000010, B01000010, B01000010, B01000010, B01000010, B00100100, B00011000, B00011000,};
+byte invader4a[] = {B00011000, B00100100, B01000010, B10000001, B10000001, B10000001, B10000001, B10000001,};
+byte invader4b[] = {B10000001, B10000001, B10000001, B10000001, B10000001, B01000010, B00100100, B00011000,};
+
+byte d0[] = {B00000000, B00000000, B00000000, B00000000, B00000000, B00000000, B00000000, B11111111};
+byte d1[] = {B00000000, B00000000, B00000000, B00000000, B00000000, B01010010, B01110110, B11111111};
+byte d2[] = {B00000000, B00000000, B00000000, B00000000, B00000000, B10101001, B11101011, B11111111};
+byte d3[] = {B00000000, B00000000, B00000000, B10010010, B10010010, B11011111, B11111111, B11111111};
+byte d4[] = {B00000000, B00000000, B00000000, B01001001, B01101011, B11101111, B11111111, B11111111};
+byte d5[] = {B00000000, B10010010, B11010011, B11010011, B11111011, B11111111, B11111111, B11111111};
+byte d6[] = {B00000000, B00101100, B10101100, B11101110, B11101111, B11111111, B11111111, B11111111};
+
+byte o0[] = {B00000000, B00000000, B00000000, B00000000, B00000000, B00000000, B00000000, B00000000};
+byte o1[] = {B00000000, B00000000, B00000000, B00000000, B00000000, B00000000, B00000000, B11111111};
+byte o2[] = {B00000000, B00000000, B00000000, B00000000, B00000000, B00000000, B11111111, B00010000};
+byte o3[] = {B00000000, B00000000, B00000000, B00000000, B00000000, B11111111, B00010000, B00010000};
+byte o4[] = {B00000000, B00000000, B00000000, B00000000, B11111111, B00010000, B00010000, B11111111};
+byte o5[] = {B00000000, B00000000, B00000000, B11111111, B00010000, B00010000, B11111111, B00000000};
+byte o6[] = {B00000000, B00000000, B11111111, B00010000, B00010000, B11111111, B00000000, B10000001};
+byte o7[] = {B00000000, B11111111, B00010000, B00010000, B11111111, B00000000, B10000001, B11111111};
+byte o8[] = {B11111111, B00010000, B00010000, B11111111, B00000000, B10000001, B11111111, B10000001};
+byte o9[] = {B00010000, B00010000, B11111111, B00000000, B10000001, B11111111, B10000001, B00000000};
+byte o10[] = {B00010000, B11111111, B00000000, B10000001, B11111111, B10000001, B00000000, B00000000};
+byte o11[] = {B11111111, B00000000, B10000001, B11111111, B10000001, B00000000, B00000000, B00000000};
+byte o12[] = {B00000000, B10000001, B11111111, B10000001, B00000000, B00000000, B00000000, B10000001};
+byte o13[] = {B10000001, B11111111, B10000001, B00000000, B00000000, B00000000, B10000001, B11111111};
+byte o14[] = {B11111111, B10000001, B00000000, B00000000, B00000000, B10000001, B11111111, B10000001};
+byte o15[] = {B10000001, B00000000, B00000000, B00000000, B10000001, B11111111, B10000001, B00000000};
+byte o16[] = {B00000000, B00000000, B00000000, B10000001, B11111111, B10000001, B00000000, B11111010};
+byte o17[] = {B00000000, B00000000, B10000001, B11111111, B10000001, B00000000, B11111010, B00001011};
+byte o18[] = {B00000000, B10000001, B11111111, B10000001, B00000000, B11111010, B00001011, B01111000};
+byte o19[] = {B11111111, B10000001, B00000000, B11111010, B00001011, B01111000, B00001000, B00001000};
+byte o20[] = {B11111111, B10000001, B00000000, B11111010, B00001011, B01111000, B00001000, B11111000};
+byte o21[] = {B10000001, B00000000, B11111010, B00001011, B01111000, B00001000, B11111000, B00000000};
+byte o22[] = {B00000000, B11111010, B00001011, B01111000, B00001000, B11111000, B00000000, B00000000};
+byte o23[] = {B11111010, B00001011, B01111000, B00001000, B11111000, B00000000, B00000000, B00000000};
+byte o24[] = {B00001011, B01111000, B00001000, B11111000, B00000000, B00000000, B00000000, B00111100};
+byte o25[] = {B01111000, B00001000, B11111000, B00000000, B00000000, B00000000, B00111100, B01000010};
+byte o26[] = {B00001000, B11111000, B00000000, B00000000, B00000000, B00111100, B01000010, B10000001};
+byte o27[] = {B11111000, B00000000, B00000000, B00000000, B00111100, B01000010, B10000001, B10000001};
+byte o28[] = {B00000000, B00000000, B00000000, B00111100, B01000010, B10000001, B10000001, B10000001};
+byte o29[] = {B00000000, B00000000, B00111100, B01000010, B10000001, B10000001, B10000001, B10000001};
+byte o30[] = {B00000000, B00111100, B01000010, B10000001, B10000001, B10000001, B10000001, B01000010};
+byte o31[] = {B00111100, B01000010, B10000001, B10000001, B10000001, B10000001, B01000010, B00111100};
+byte o32[] = {B01000010, B10000001, B10000001, B10000001, B10000001, B01000010, B00111100, B00000000};
+byte o33[] = {B10000001, B10000001, B10000001, B10000001, B01000010, B00111100, B00000000, B11111000};
+byte o34[] = {B10000001, B10000001, B10000001, B01000010, B00111100, B00000000, B11111000, B00001000};
+byte o35[] = {B10000001, B10000001, B01000010, B00111100, B00000000, B11111000, B00001000, B01111000};
+byte o36[] = {B10000001, B01000010, B00111100, B00000000, B11111000, B00001000, B01111000, B00001000};
+byte o37[] = {B01000010, B00111100, B00000000, B11111000, B00001000, B01111000, B00001000, B11111000};
+byte o38[] = {B00111100, B00000000, B11111000, B00001000, B01111000, B00001000, B11111000, B00000000};
+byte o39[] = {B00000000, B11111000, B00001000, B01111000, B00001000, B11111000, B00000000, B00110000};
+byte o40[] = {B11111000, B00001000, B01111000, B00001000, B11111000, B00000000, B00110000, B01001000};
+byte o41[] = {B00001000, B01111000, B00001000, B11111000, B00000000, B00110000, B01001000, B10000100};
+byte o42[] = {B01111000, B00001000, B11111000, B00000000, B00110000, B01001000, B10000100, B10000100};
+byte o43[] = {B00001000, B11111000, B00000000, B00110000, B01001000, B10000100, B10000100, B01000100};
+byte o44[] = {B11111000, B00000000, B00110000, B01001000, B10000100, B10000100, B01000100, B00111100};
+byte o45[] = {B00000000, B00110000, B01001000, B10000100, B10000100, B01000100, B00111100, B01000000};
+byte o46[] = {B00110000, B01001000, B10000100, B10000100, B01000100, B00111100, B01000000, B00000000};
+byte o47[] = {B01001000, B10000100, B10000100, B01000100, B00111100, B01000000, B00000000, B11111100};
+byte o48[] = {B10000100, B10000100, B01000100, B00111100, B01000000, B00000000, B11111100, B00001000};
+byte o49[] = {B10000100, B01000100, B00111100, B01000000, B00000000, B11111100, B00001000, B00000100};
+byte o50[] = {B01000100, B00111100, B01000000, B00000000, B11111100, B00001000, B00000100, B00000100};
+byte o51[] = {B00111100, B01000000, B00000000, B11111100, B00001000, B00000100, B00000100, B00000100};
+byte o52[] = {B01000000, B00000000, B11111100, B00001000, B00000100, B00000100, B00000100, B00000000};
+byte o53[] = {B00000000, B11111100, B00001000, B00000100, B00000100, B00000100, B00000000, B00000000};
+
+byte h1[8] = {B00001100, B00011110, B00111110, B01111100, B01111100, B00111110, B00011110, B00001100};
+byte h2[8] = {B11110011, B11100001, B11000001, B10000011, B10000011, B11000001, B11100001, B11110011};
+
+byte t0a[] = { B00011000, B00011000, B00011000, B00100100, B00100100, B00100100, B00100100, B00100100,};
+byte t0b[] = { B00100100, B00100100, B00100100, B00100100, B00100100, B00011000, B00011000, B00011000,};
+byte t1a[] = { B00011000, B00011000, B00011000, B00100100, B00100100, B00100100, B00110100, B01110100,};
+byte t1b[] = { B01110100, B00110100, B00100100, B00100100, B00100100, B00011000, B00011000, B00011000,};
+byte t2a[] = { B00011000, B00011000, B00011000, B00100100, B00100100, B00110100, B01110100, B11110100,};
+byte t2b[] = { B11110100, B01110100, B00110100, B00100100, B00100100, B00011000, B00011000, B00011000,};
+byte hm0[] = { B00000000, B00001000, B00010000, B00100000, B00100000, B00100000, B00100000, B00100000};
+byte hm1[] = { B00100000, B00100000, B00100000, B00100000, B00100000, B00010000, B00001000, B00000000};
+
+byte sm0[] = { B00000000, B00100000, B00010000, B00001000, B00001000, B00001000, B00001000, B00001000};
+byte sm1[] = { B00001000, B00001000, B00001000, B00001000, B00001000, B00010000, B00100000, B00000000};
+
+byte om0[] = { B00011000, B00011000, B00011000, B00011000, B00011000, B00011000, B00011000, B00011000};
+byte om1[] = { B00011000, B00011000, B00011000, B00011000, B00011000, B00011000, B00011000, B00011000};
+
+byte mm0[] = { B00011100, B00111000, B01010000, B11110000, B10010000, B11110000, B10010000, B11110000};
+byte mm1[] = { B11110000, B10010000, B11110000, B10010000, B11110000, B01010000, B00111000, B00011100};
+
+byte zm0[] = { B00010000, B00100000, B00010000, B00001000, B00000100, B00001000, B00010000, B00100000};
+byte zm1[] = { B00010000, B00001000, B00000100, B00001000, B00010000, B00100000, B00010000, B00001000};
+
+byte ilove[] = { B00000000, B00000000, B00000000, B00000000, B00000000, B00000000, B00000000, B00000000};
+byte ilove1[] = { B00000000, B00000000, B00000000, B00000000, B00000000, B00000000, B00000000, B10000001};
+byte ilove2[] = { B00000000, B00000000, B00000000, B00000000, B00000000, B00000000, B10000001, B11111111};
+byte ilove3[] = { B00000000, B00000000, B00000000, B00000000, B00000000, B10000001, B11111111, B10000001};
+byte ilove4[] = { B00000000, B00000000, B00000000, B00000000, B10000001, B11111111, B10000001, B00000000};
+byte ilove5[] = { B00000000, B00000000, B00000000, B10000001, B11111111, B10000001, B00000000, B00001100};
+byte ilove6[] = { B00000000, B00000000, B10000001, B11111111, B10000001, B00000000, B00001100, B00011110};
+byte ilove7[] = { B00000000, B10000001, B11111111, B10000001, B00000000, B00001100, B00011110, B00111110};
+byte ilove8[] = { B10000001, B11111111, B10000001, B00000000, B00001100, B00011110, B00111110, B01111100};
+byte ilove9[] = { B11111111, B10000001, B00000000, B00001100, B00011110, B00111110, B01111100, B01111100};
+byte ilove10[] = { B10000001, B00000000, B00001100, B00011110, B00111110, B01111100, B01111100, B00111110};
+byte ilove11[] = { B00000000, B00001100, B00011110, B00111110, B01111100, B01111100, B00111110, B00011110};
+byte ilove12[] = { B00001100, B00011110, B00111110, B01111100, B01111100, B00111110, B00011110, B00001100};
+byte ilove13[] = { B00011110, B00111110, B01111100, B01111100, B00111110, B00011110, B00001100, B00000000};
+
+byte ilove14o[] = { B00111110, B01111100, B01111100, B00111110, B00011110, B00001100, B00000000, B00111100};
+byte ilove15o[] = { B01111100, B01111100, B00111110, B00011110, B00001100, B00000000, B00111100, B01000010};
+byte ilove16o[] = { B01111100, B00111110, B00011110, B00001100, B00000000, B00111100, B01000010, B10000001};
+byte ilove17o[] = { B00111110, B00011110, B00001100, B00000000, B00111100, B01000010, B10000001, B10000001};
+byte ilove18o[] = { B00011110, B00001100, B00000000, B00111100, B01000010, B10000001, B10000001, B10000001};
+byte ilove19o[] = { B00001100, B00000000, B00111100, B01000010, B10000001, B10000001, B10000001, B10000001};
+byte ilove20o[] = { B00000000, B00111100, B01000010, B10000001, B10000001, B10000001, B10000001, B01000010};
+byte ilove21o[] = { B00111100, B01000010, B10000001, B10000001, B10000001, B10000001, B01000010, B00111100};
+byte ilove22o[] = { B01000010, B10000001, B10000001, B10000001, B10000001, B01000010, B00111100, B00000000};
+byte ilove23o[] = { B10000001, B10000001, B10000001, B10000001, B01000010, B00111100, B00000000, B00000000};
+byte ilove24o[] = { B10000001, B10000001, B10000001, B01000010, B00111100, B00000000, B00000000, B00000000};
+
+
+byte ilove14s[] = { B00111110, B01111100, B01111100, B00111110, B00011110, B00001100, B00000000, B01000100};
+byte ilove15s[] = { B01111100, B01111100, B00111110, B00011110, B00001100, B00000000, B01000100, B10001010};
+byte ilove16s[] = { B01111100, B00111110, B00011110, B00001100, B00000000, B01000100, B10001010, B10010001};
+byte ilove17s[] = { B00111110, B00011110, B00001100, B00000000, B01000100, B10001010, B10010001, B10010001};
+byte ilove18s[] = { B00011110, B00001100, B00000000, B01000100, B10001010, B10010001, B10010001, B10010001};
+byte ilove19s[] = { B00001100, B00000000, B01000100, B10001010, B10010001, B10010001, B10010001, B10010001};
+byte ilove20s[] = { B00000000, B01000100, B10001010, B10010001, B10010001, B10010001, B10010001, B01100010};
+byte ilove21s[] = { B01000100, B10001010, B10010001, B10010001, B10010001, B10010001, B01100010, B00000000};
+byte ilove22s[] = { B10001010, B10010001, B10010001, B10010001, B10010001, B01100010, B00000000, B00000000};
+byte ilove23s[] = { B10010001, B10010001, B10010001, B10010001, B01100010, B00000000, B00000000, B00000000};
+
+
+byte ilove14n[] = { B00111110, B01111100, B01111100, B00111110, B00011110, B00001100, B00000000, B11111111};
+byte ilove15n[] = { B01111100, B01111100, B00111110, B00011110, B00001100, B00000000, B11111111, B00001110};
+byte ilove16n[] = { B01111100, B00111110, B00011110, B00001100, B00000000, B11111111, B00001110, B00011100};
+byte ilove17n[] = { B00111110, B00011110, B00001100, B00000000, B11111111, B00001110, B00011100, B00111000};
+byte ilove18n[] = { B00011110, B00001100, B00000000, B11111111, B00001110, B00011100, B00111000, B01110000};
+byte ilove19n[] = { B00001100, B00000000, B11111111, B00001110, B00011100, B00111000, B01110000, B11111111};
+byte ilove20n[] = { B00000000, B11111111, B00001110, B00011100, B00111000, B01110000, B11111111, B00000000};
+byte ilove21n[] = { B11111111, B00001110, B00011100, B00111000, B01110000, B11111111, B00000000, B00000000};
+byte ilove22n[] = { B00001110, B00011100, B00111000, B01110000, B11111111, B00000000, B00000000, B00000000};
+
+//mar>>>3.mar
+byte mar[] = { B00000000, B00000000, B00000000, B00000000, B00000000, B00000000, B00000000, B00000000};
+byte mar1[] = { B00000000, B00000000, B00000000, B00000000, B00000000, B00000000, B00000000, B01000100};
+byte mar2[] = { B00000000, B00000000, B00000000, B00000000, B00000000, B00000000, B01000100, B11000110};
+byte mar3[] = { B00000000, B00000000, B00000000, B00000000, B00000000, B01000100, B11000110, B10010010};
+byte mar4[] = { B00000000, B00000000, B00000000, B00000000, B01000100, B11000110, B10010010, B10010010};
+byte mar5[] = { B00000000, B00000000, B00000000, B01000100, B11000110, B10010010, B10010010, B11111110};
+byte mar6[] = { B00000000, B00000000, B01000100, B11000110, B10010010, B10010010, B11111110, B01101100};
+byte mar7[] = { B00000000, B01000100, B11000110, B10010010, B10010010, B11111110, B01101100, B00000000};
+byte mar8[] = { B01000100, B11000110, B10010010, B10010010, B11111110, B01101100, B00000000, B01100000};
+byte mar9[] = { B11000110, B10010010, B10010010, B11111110, B01101100, B00000000, B01100000, B01100000};
+byte mar10[] = { B10010010, B10010010, B11111110, B01101100, B00000000, B01100000, B01100000, B00000000};
+byte mar11[] = { B10010010, B11111110, B01101100, B00000000, B01100000, B01100000, B00000000, B11111000};
+byte mar12[] = { B11111110, B01101100, B00000000, B01100000, B01100000, B00000000, B11111000, B00001000};
+byte mar13[] = { B01101100, B00000000, B01100000, B01100000, B00000000, B11111000, B00001000, B01111000};
+byte mar14[] = { B00000000, B01100000, B01100000, B00000000, B11111000, B00001000, B01111000, B00001000};
+byte mar15[] = { B01100000, B01100000, B00000000, B11111000, B00001000, B01111000, B00001000, B11111000};
+byte mar16[] = { B01100000, B00000000, B11111000, B00001000, B01111000, B00001000, B11111000, B00000000};
+byte mar17[] = { B00000000, B11111000, B00001000, B01111000, B00001000, B11111000, B00000000, B00110000};
+byte mar18[] = { B11111000, B00001000, B01111000, B00001000, B11111000, B00000000, B00110000, B01001000};
+byte mar19[] = { B00001000, B01111000, B00001000, B11111000, B00000000, B00110000, B01001000, B10000100};
+byte mar20[] = { B01111000, B00001000, B11111000, B00000000, B00110000, B01001000, B10000100, B10000100};
+byte mar21[] = { B00001000, B11111000, B00000000, B00110000, B01001000, B10000100, B10000100, B01000100};
+byte mar22[] = { B11111000, B00000000, B00110000, B01001000, B10000100, B10000100, B01000100, B00111100};
+byte mar23[] = { B00000000, B00110000, B01001000, B10000100, B10000100, B01000100, B00111100, B01000000};
+byte mar24[] = { B00110000, B01001000, B10000100, B10000100, B01000100, B00111100, B01000000, B00000000};
+byte mar25[] = { B01001000, B10000100, B10000100, B01000100, B00111100, B01000000, B00000000, B11111100};
+byte mar26[] = { B10000100, B10000100, B01000100, B00111100, B01000000, B00000000, B11111100, B00001000};
+byte mar27[] = { B10000100, B01000100, B00111100, B01000000, B00000000, B11111100, B00001000, B00000100};
+byte mar28[] = { B01000100, B00111100, B01000000, B00000000, B11111100, B00001000, B00000100, B00000100};
+byte mar29[] = { B00111100, B01000000, B00000000, B11111100, B00001000, B00000100, B00000100, B00000100};
+byte mar30[] = { B01000000, B00000000, B11111100, B00001000, B00000100, B00000100, B00000100, B00000000};
+byte mar31[] = { B00000000, B11111100, B00001000, B00000100, B00000100, B00000100, B00000000, B00000000};
+byte mar32[] = { B11111100, B00001000, B00000100, B00000100, B00000100, B00000000, B00000000, B00000000};
+/*
+byte ilove9[] = { B11111111, B10000001, B00000000, B00001100, B00011110, B00111110, B01111100, B};
+byte ilove10[] = { B10000001, B00000000, B00001100, B00011110, B00111110, B01111100, B, B};
+byte ilove11[] = { B00000000, B00001100, B00011110, B00111110, B01111100, B, B, B};
+byte ilove12[] = { B00001100, B00011110, B00111110, B01111100, B, B, B, B, };
+
+byte [] = { B, B, B, B, B, B, B, B};
+*/
+LedControl lc = LedControl(DIN, CLK, CS, 0);
+
+void setup() {
+  lc.shutdown(0, false); // Wake up displays
+  lc.shutdown(1, false);
+  lc.setIntensity(0, 5); // Set intensity levels
+  lc.setIntensity(1, 5);
+  lc.clearDisplay(0); // Clear Displays
+  lc.clearDisplay(1);
+  pinMode(button, INPUT);
+  pinMode(2, OUTPUT);
+}
+void sound() {
+  while (val == 0) {
+    j = 3;
+    sig = analogRead(MIC) / 15;
+    Serial.println(" b ");
+    Serial.print(sig);
+    //if ((sig == 4))
+    if ((sig >= 2) && (sig <= 4))
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(0, i, invader1a[i]);
+        lc.setRow(1, i, invader1b[i]);
+      }
+      delay(1);
+    }
+    else if ((sig > 5 && sig <= 6) || (sig < 3))
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(0, i, invader2a[i]);
+        lc.setRow(1, i, invader2b[i]);
+      }
+      delay(250);
+      for (int i = 0; i < 8; i++) {
+        lc.setRow(0, i, invader3a[i]);
+        lc.setRow(1, i, invader3b[i]);
+      }
+      delay(250);
+      for (int i = 0; i < 8; i++) {
+        lc.setRow(0, i, invader2a[i]);
+        lc.setRow(1, i, invader2b[i]);
+      }
+      delay(250);
+    }
+    else if (sig > 6 && sig < 8)
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(0, i, invader3a[i]);
+        lc.setRow(1, i, invader3b[i]);
+      }
+      delay(350);
+    }
+    else if (sig >= 8)
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(0, i, invader4a[i]);
+        lc.setRow(1, i, invader4b[i]);
+      }
+      delay(200);
+      for (int i = 0; i < 8; i++) {
+        lc.setRow(0, i, invader2a[i]);
+        lc.setRow(1, i, invader2b[i]);
+      }
+      delay(150);
+      for (int i = 0; i < 8; i++) {
+        lc.setRow(0, i, invader3a[i]);
+        lc.setRow(1, i, invader3b[i]);
+      }
+      delay(150);
+      for (int i = 0; i < 8; i++) {
+        lc.setRow(0, i, invader4a[i]);
+        lc.setRow(1, i, invader4b[i]);
+      }
+      delay(200);
+    }
+
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 2;
+      return;
+    }
+  }
+}
+
+void name() {/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //it was val2!=1
+  while (val == 0) {
+    j = 3;
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o0[i]);
+        lc.setRow(0, i, o0[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o1[i]);
+        lc.setRow(0, i, o0[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o2[i]);
+        lc.setRow(0, i, o0[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o3[i]);
+        lc.setRow(0, i, o0[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o4[i]);
+        lc.setRow(0, i, o0[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o5[i]);
+        lc.setRow(0, i, o0[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o6[i]);
+        lc.setRow(0, i, o0[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o7[i]);
+        lc.setRow(0, i, o0[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o8[i]);
+        lc.setRow(0, i, o0[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o9[i]);
+        lc.setRow(0, i, o1[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o10[i]);
+        lc.setRow(0, i, o2[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o11[i]);
+        lc.setRow(0, i, o3[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o12[i]);
+        lc.setRow(0, i, o4[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o13[i]);
+        lc.setRow(0, i, o5[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o14[i]);
+        lc.setRow(0, i, o6[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o15[i]);
+        lc.setRow(0, i, o7[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o16[i]);
+        lc.setRow(0, i, o8[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o17[i]);
+        lc.setRow(0, i, o9[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o18[i]);
+        lc.setRow(0, i, o10[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o19[i]);
+        lc.setRow(0, i, o11[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o20[i]);
+        lc.setRow(0, i, o12[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o21[i]);
+        lc.setRow(0, i, o13[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o22[i]);
+        lc.setRow(0, i, o14[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o23[i]);
+        lc.setRow(0, i, o15[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o24[i]);
+        lc.setRow(0, i, o16[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o25[i]);
+        lc.setRow(0, i, o17[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o26[i]);
+        lc.setRow(0, i, o18[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o27[i]);
+        lc.setRow(0, i, o19[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o28[i]);
+        lc.setRow(0, i, o20[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o29[i]);
+        lc.setRow(0, i, o21[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o30[i]);
+        lc.setRow(0, i, o22[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o31[i]);
+        lc.setRow(0, i, o23[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o32[i]);
+        lc.setRow(0, i, o24[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o33[i]);
+        lc.setRow(0, i, o25[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o34[i]);
+        lc.setRow(0, i, o26[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o35[i]);
+        lc.setRow(0, i, o27[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o36[i]);
+        lc.setRow(0, i, o28[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o37[i]);
+        lc.setRow(0, i, o29[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o38[i]);
+        lc.setRow(0, i, o30[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o39[i]);
+        lc.setRow(0, i, o31[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o40[i]);
+        lc.setRow(0, i, o32[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o41[i]);
+        lc.setRow(0, i, o33[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o42[i]);
+        lc.setRow(0, i, o34[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o43[i]);
+        lc.setRow(0, i, o35[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o44[i]);
+        lc.setRow(0, i, o36[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o45[i]);
+        lc.setRow(0, i, o37[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o46[i]);
+        lc.setRow(0, i, o38[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o47[i]);
+        lc.setRow(0, i, o39[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o48[i]);
+        lc.setRow(0, i, o40[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o49[i]);
+        lc.setRow(0, i, o41[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o50[i]);
+        lc.setRow(0, i, o42[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o51[i]);
+        lc.setRow(0, i, o43[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o52[i]);
+        lc.setRow(0, i, o44[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, o53[i]);
+        lc.setRow(0, i, o45[i]);
+      }
+    }
+    delay(1000);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 3;
+      return;
+    }
+  }
+}
+void heart() {////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  while (val == 0) {
+    j = 4;
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, h1[i]);
+        lc.setRow(0, i, h1[i]);
+      }
+    }
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      return;
+    }
+    delay(400);
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, h2[i]);
+        lc.setRow(0, i, h2[i]);
+      }
+    }
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      return;
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      return;
+    }
+  }
+}
+void tongue() {///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  while (val == 0) {
+    j = 5;
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(0, i, t0a[i]);
+        lc.setRow(1, i, t0b[i]);
+      }
+    }
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 5;
+      return;
+    }
+    delay(800);
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(0, i, t1a[i]);
+        lc.setRow(1, i, t1b[i]);
+      }
+    }
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 5;
+      return;
+    }
+    delay(150);
+  { for (int i = 0; i < 8; i++) {
+        lc.setRow(0, i, t2a[i]);
+        lc.setRow(1, i, t2b[i]);
+      }
+    }
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 5;
+      return;
+    }
+    delay(800);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 5;
+      return;
+    }
+  }
+}
+void a(){
+   while (val == 0) {
+    j = 6;
+     { for (int i = 0; i < 8; i++) {
+        lc.setRow(0, i, hm0[i]);
+        lc.setRow(1, i, hm1[i]);
+      }
+    }
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 6;
+      return;
+    }
+  }
+}
+void b(){
+   while (val == 0) {
+    j = 7;
+     { for (int i = 0; i < 8; i++) {
+        lc.setRow(0, i, sm0[i]);
+        lc.setRow(1, i, sm1[i]);
+      }
+    }
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 7;
+      return;
+    }
+  }
+}
+void c(){
+   while (val == 0) {
+    j = 8;
+     { for (int i = 0; i < 8; i++) {
+        lc.setRow(0, i, om0[i]);
+        lc.setRow(1, i, om1[i]);
+      }
+    }
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 8;
+      return;
+    }
+  }
+}
+void d(){
+   while (val == 0) {
+    j = 9;
+     { for (int i = 0; i < 8; i++) {
+        lc.setRow(0, i, mm0[i]);
+        lc.setRow(1, i, mm1[i]);
+      }
+    }
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 9;
+      return;
+    }
+  }
+}
+void e(){
+   while (val == 0) {
+    j = 10;
+     { for (int i = 0; i < 8; i++) {
+        lc.setRow(0, i, zm0[i]);
+        lc.setRow(1, i, zm1[i]);
+      }
+    }
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 10;
+      return;
+    }
+  }
+}
+void loveo(){ ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   while (val == 0) {
+    j = 11;
+     { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove1[i]);
+        lc.setRow(0, i, ilove[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 11;
+      return;
+    }
+     { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove2[i]);
+        lc.setRow(0, i, ilove[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 11;
+      return;
+    }
+     { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove3[i]);
+        lc.setRow(0, i, ilove[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 11;
+      return;
+    }
+     { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove4[i]);
+        lc.setRow(0, i, ilove[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 11;
+      return;
+    }
+     { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove5[i]);
+        lc.setRow(0, i, ilove[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 11;
+      return;
+    }
+     { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove6[i]);
+        lc.setRow(0, i, ilove[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 11;
+      return;
+    }
+     { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove7[i]);
+        lc.setRow(0, i, ilove[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 11;
+      return;
+    }
+     { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove8[i]);
+        lc.setRow(0, i, ilove[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 11;
+      return;
+    }
+     { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove9[i]);
+        lc.setRow(0, i, ilove1[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 11;
+      return;
+    }
+     { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove10[i]);
+        lc.setRow(0, i, ilove2[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 11;
+      return;
+    }
+     { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove11[i]);
+        lc.setRow(0, i, ilove3[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 11;
+      return;
+    }
+     { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove12[i]);
+        lc.setRow(0, i, ilove4[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 11;
+      return;
+    }
+     { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove13[i]);
+        lc.setRow(0, i, ilove5[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 11;
+      return;
+    }
+     { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove14o[i]);
+        lc.setRow(0, i, ilove6[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 11;
+      return;
+    }
+     { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove15o[i]);
+        lc.setRow(0, i, ilove7[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 11;
+      return;
+    }
+     { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove16o[i]);
+        lc.setRow(0, i, ilove8[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 11;
+      return;
+    }
+     { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove17o[i]);
+        lc.setRow(0, i, ilove9[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 11;
+      return;
+    }
+     { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove18o[i]);
+        lc.setRow(0, i, ilove10[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 11;
+      return;
+    }
+     { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove19o[i]);
+        lc.setRow(0, i, ilove11[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 11;
+      return;
+    }
+     { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove20o[i]);
+        lc.setRow(0, i, ilove12[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 11;
+      return;
+    }
+     { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove21o[i]);
+        lc.setRow(0, i, ilove13[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 11;
+      return;
+    }
+     { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove22o[i]);
+        lc.setRow(0, i, ilove14o[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 11;
+      return;
+    }
+     { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove23o[i]);
+        lc.setRow(0, i, ilove15o[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 11;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove24o[i]);
+        lc.setRow(0, i, ilove16o[i]);
+      }
+    }
+    delay(1000);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 11;
+      return;
+    }
+  }
+}
+void loves(){ ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   while (val == 0) {
+    j = 12;
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove1[i]);
+        lc.setRow(0, i, ilove[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 12;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove2[i]);
+        lc.setRow(0, i, ilove[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 12;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove3[i]);
+        lc.setRow(0, i, ilove[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 12;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove4[i]);
+        lc.setRow(0, i, ilove[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 12;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove5[i]);
+        lc.setRow(0, i, ilove[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 12;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove6[i]);
+        lc.setRow(0, i, ilove[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 12;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove7[i]);
+        lc.setRow(0, i, ilove[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 12;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove8[i]);
+        lc.setRow(0, i, ilove[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 12;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove9[i]);
+        lc.setRow(0, i, ilove1[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 12;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove10[i]);
+        lc.setRow(0, i, ilove2[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 12;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove11[i]);
+        lc.setRow(0, i, ilove3[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 12;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove12[i]);
+        lc.setRow(0, i, ilove4[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 12;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove13[i]);
+        lc.setRow(0, i, ilove5[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 12;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove14s[i]);
+        lc.setRow(0, i, ilove6[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 12;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove15s[i]);
+        lc.setRow(0, i, ilove7[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 12;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove16s[i]);
+        lc.setRow(0, i, ilove8[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 12;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove17s[i]);
+        lc.setRow(0, i, ilove9[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 12;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove18s[i]);
+        lc.setRow(0, i, ilove10[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 12;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove19s[i]);
+        lc.setRow(0, i, ilove11[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 12;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove20s[i]);
+        lc.setRow(0, i, ilove12[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 12;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove21s[i]);
+        lc.setRow(0, i, ilove13[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 12;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove22s[i]);
+        lc.setRow(0, i, ilove14s[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 12;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove23s[i]);
+        lc.setRow(0, i, ilove15s[i]);
+      }
+    }
+    delay(1000);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 12;
+      return;
+    }
+   }
+}
+void loven(){ ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   while (val == 0) {
+    j = 13;
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove1[i]);
+        lc.setRow(0, i, ilove[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 13;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove2[i]);
+        lc.setRow(0, i, ilove[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 13;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove3[i]);
+        lc.setRow(0, i, ilove[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 13;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove4[i]);
+        lc.setRow(0, i, ilove[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 13;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove5[i]);
+        lc.setRow(0, i, ilove[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 13;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove6[i]);
+        lc.setRow(0, i, ilove[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 13;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove7[i]);
+        lc.setRow(0, i, ilove[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 13;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove8[i]);
+        lc.setRow(0, i, ilove[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 13;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove9[i]);
+        lc.setRow(0, i, ilove1[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 13;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove10[i]);
+        lc.setRow(0, i, ilove2[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 13;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove11[i]);
+        lc.setRow(0, i, ilove3[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 13;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove12[i]);
+        lc.setRow(0, i, ilove4[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 13;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove13[i]);
+        lc.setRow(0, i, ilove5[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 13;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove14n[i]);
+        lc.setRow(0, i, ilove6[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 13;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove15n[i]);
+        lc.setRow(0, i, ilove7[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 13;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove16n[i]);
+        lc.setRow(0, i, ilove8[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 13;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove17n[i]);
+        lc.setRow(0, i, ilove9[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 13;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove18n[i]);
+        lc.setRow(0, i, ilove10[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 13;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove19n[i]);
+        lc.setRow(0, i, ilove11[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 13;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove20n[i]);
+        lc.setRow(0, i, ilove12[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 13;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove21n[i]);
+        lc.setRow(0, i, ilove13[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 13;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, ilove22n[i]);
+        lc.setRow(0, i, ilove14n[i]);
+      }
+    }
+    delay(1000);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 13;
+      return;
+    }
+   }
+}
+void marn(){/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    while (val == 0) {
+    j = 1;
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, mar1[i]);
+        lc.setRow(0, i, mar[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 1;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, mar2[i]);
+        lc.setRow(0, i, mar[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 1;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, mar3[i]);
+        lc.setRow(0, i, mar[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 1;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, mar4[i]);
+        lc.setRow(0, i, mar[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 1;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, mar5[i]);
+        lc.setRow(0, i, mar[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 1;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, mar6[i]);
+        lc.setRow(0, i, mar[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 1;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, mar7[i]);
+        lc.setRow(0, i, mar[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 1;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, mar8[i]);
+        lc.setRow(0, i, mar[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 1;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, mar9[i]);
+        lc.setRow(0, i, mar1[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 1;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, mar10[i]);
+        lc.setRow(0, i, mar2[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 1;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, mar11[i]);
+        lc.setRow(0, i, mar3[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 1;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, mar12[i]);
+        lc.setRow(0, i, mar4[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 1;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, mar13[i]);
+        lc.setRow(0, i, mar5[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 1;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, mar14[i]);
+        lc.setRow(0, i, mar6[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 1;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, mar15[i]);
+        lc.setRow(0, i, mar7[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 1;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, mar16[i]);
+        lc.setRow(0, i, mar8[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 1;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, mar17[i]);
+        lc.setRow(0, i, mar9[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 1;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, mar18[i]);
+        lc.setRow(0, i, mar10[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 1;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, mar19[i]);
+        lc.setRow(0, i, mar11[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 1;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, mar20[i]);
+        lc.setRow(0, i, mar12[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 1;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, mar21[i]);
+        lc.setRow(0, i, mar13[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 1;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, mar22[i]);
+        lc.setRow(0, i, mar14[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 1;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, mar23[i]);
+        lc.setRow(0, i, mar15[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 1;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, mar24[i]);
+        lc.setRow(0, i, mar16[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 1;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, mar25[i]);
+        lc.setRow(0, i, mar17[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 1;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, mar26[i]);
+        lc.setRow(0, i, mar18[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 1;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, mar27[i]);
+        lc.setRow(0, i, mar19[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 1;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, mar28[i]);
+        lc.setRow(0, i, mar20[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 1;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, mar29[i]);
+        lc.setRow(0, i, mar21[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 1;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, mar30[i]);
+        lc.setRow(0, i, mar22[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 1;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, mar31[i]);
+        lc.setRow(0, i, mar23[i]);
+      }
+    }
+    delay(400);
+    val1 = digitalRead(button);
+    if (val1 == 1) {
+      j = 1;
+      return;
+    }
+    { for (int i = 0; i < 8; i++) {
+        lc.setRow(1, i, mar32[i]);
+        lc.setRow(0, i, mar24[i]);
+      }
+    }
+    delay(1000);
+    }
+  }
+
+void loop() {//////////-----------------------------------------------------------------------------------------------------------
+  digitalWrite(2, HIGH);
+  if ((j != 1) && (j != 2) && (j != 3) && (j != 4)) {
+    sound();
+    //name();
+  }
+  /*val=0;
+  val0=0;
+  val1=0;
+  val2=0;
+  val3=0;*/
+  
+  if (j == 1) {
+    delay(500);
+    sound();
+    val=0;
+  }
+  if (j == 2) {
+    delay(500);
+    name();
+    val=0;
+  }
+  if (j == 3) {
+    delay(500);
+    heart();
+    val=0;
+  }
+  if (j == 4) {
+    delay(500);
+    tongue();
+    val=0;
+  }
+  if (j == 5) {
+    delay(500);
+    a();
+    val=0;
+  }
+  if (j == 6) {
+    delay(500);
+    b();
+    val=0;
+  }
+  if (j == 7) {
+    delay(500);
+    c();
+    val=0;
+  }
+  if (j == 8) {
+    delay(500);
+    d();
+    val=0;
+  }
+  if (j == 9) {
+    delay(500);
+    e();
+    val=0;
+  }
+  if (j == 10) {
+    delay(500);
+    loveo();
+    val=0;
+  }
+  if (j == 11) {
+    delay(500);
+    loves();
+    val=0;
+  }
+  if (j == 12) {
+    delay(500);
+    loven();
+    val=0;
+  }
+  if (j == 13) {
+    delay(500);
+    marn();
+    val=0;
+  }
+}
